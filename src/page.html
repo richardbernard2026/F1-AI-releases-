@@ -1,0 +1,433 @@
+<style>
+/* An editorial data page: serif headline, plain sans body, mono numbers.
+   Signature element: the "random range" gauge. A grey bar is where 95% of random dates land; the dot is what actually happened. */
+:root{
+  --paper:#f6f4ef; --sheet:#fffdf9; --ink:#141414; --ink-2:#4a4a46; --ink-3:#7a7a73;
+  --rule:#e3dfd6; --rule-2:#cdc8bc; --band:#ece8df; --null:#d9d4c8;
+  --accent:#d7261e; --team:#141414;
+  --f-display:"Newsreader",Georgia,"Times New Roman",serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121211; --sheet:#1a1a18; --ink:#efede7; --ink-2:#b6b3aa; --ink-3:#85827a;
+  --rule:#2b2a27; --rule-2:#3b3a36; --band:#22211f; --null:#3a3833; --accent:#ff5a4c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121211; --sheet:#1a1a18; --ink:#efede7; --ink-2:#b6b3aa; --ink-3:#85827a;
+  --rule:#2b2a27; --rule-2:#3b3a36; --band:#22211f; --null:#3a3833; --accent:#ff5a4c; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding:40px max(16px,env(safe-area-inset-right,0px)) 80px max(16px,env(safe-area-inset-left,0px))}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;margin:0;text-wrap:balance;letter-spacing:-.005em}
+h1{font-size:clamp(34px,5.4vw,58px);line-height:1.04;max-width:18ch}
+h2{font-size:clamp(24px,3vw,30px);line-height:1.15}
+h3{font-size:19px;line-height:1.25}
+p{margin:0;max-width:66ch;text-wrap:pretty}
+a{color:inherit;text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{text-decoration-color:var(--accent)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.kicker{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);display:flex;gap:10px;align-items:center}
+.kicker::before{content:"";width:22px;height:2px;background:var(--accent)}
+header{display:grid;gap:20px;padding-bottom:36px;border-bottom:1px solid var(--ink)}
+.dek{font-size:19px;line-height:1.5;color:var(--ink-2);max-width:60ch}
+.dek strong{color:var(--ink);font-weight:600}
+.byline{font-size:14px;color:var(--ink-3)}
+.facts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-bottom:1px solid var(--rule)}
+.facts div{padding:16px 0 14px;display:grid;gap:2px}
+.facts div+div{padding-left:16px;border-left:1px solid var(--rule)}
+.facts .n{font-family:var(--f-mono);font-size:26px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1.1}
+.facts .l{font-size:13px;color:var(--ink-2);line-height:1.35}
+@media (max-width:720px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.facts div{padding-left:0!important;border-left:0!important;border-top:1px solid var(--rule)}.facts div:nth-child(even){padding-left:16px!important;border-left:1px solid var(--rule)!important}.facts div:last-child{grid-column:1/-1}}
+section{padding-top:56px;display:grid;gap:18px}
+.sh{display:grid;gap:8px}
+.sh .no{font-family:var(--f-mono);font-size:12px;color:var(--accent);letter-spacing:.06em}
+.sh p{color:var(--ink-2)}
+.controls{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:end;padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.field{display:grid;gap:6px}
+.field>span{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+select{font:inherit;font-size:15px;font-weight:500;color:var(--ink);background:var(--sheet);border:1px solid var(--rule-2);border-radius:4px;padding:7px 34px 7px 10px;appearance:none;-webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px;background-repeat:no-repeat;min-width:190px}
+.tog{display:inline-flex;border:1px solid var(--rule-2);border-radius:4px;overflow:hidden;background:var(--sheet)}
+.tog button{font:inherit;font-size:14px;border:0;background:transparent;color:var(--ink-2);padding:7px 12px;cursor:pointer;transition:background .15s ease-out,color .15s ease-out}
+.tog button+button{border-left:1px solid var(--rule-2)}
+.tog button:hover{color:var(--ink)}
+.tog button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+select:focus-visible,.tog button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:12px;height:12px;display:inline-block;flex:none}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font-size:13px;line-height:1.4;padding:8px 10px;border-radius:3px;max-width:240px;z-index:5;opacity:0;transition:opacity .1s ease-out}
+.tip b{font-weight:600}
+.tip .m{font-family:var(--f-mono);font-size:12px;opacity:.85}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0;border-top:1px solid var(--rule)}
+.ro{padding:16px 18px 16px 0;display:grid;gap:6px;align-content:start;min-width:0}
+.ro+.ro{padding-left:18px;border-left:1px solid var(--rule)}
+@media (max-width:760px){.ro+.ro{padding-left:0;border-left:0;border-top:1px solid var(--rule)}}
+.ro .k{font-size:14px;color:var(--ink-2)}
+.ro .v{font-family:var(--f-mono);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums}
+.ro .s{font-size:13px;color:var(--ink-3);font-family:var(--f-mono)}
+.gauge{display:block;width:100%;max-width:320px;height:auto}
+.note{font-size:14px;color:var(--ink-2)}
+.tbl{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:12px 12px 12px 0;border-bottom:1px solid var(--rule)}
+th{font-family:var(--f-mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);font-weight:400;border-bottom:1px solid var(--ink)}
+td.team{font-weight:600;white-space:nowrap}
+td.team i,.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:8px;vertical-align:1px}
+#robust table{min-width:720px}
+#robust td{vertical-align:middle}
+#robust td.cell{min-width:118px}
+#robust .num{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;display:block;margin-bottom:2px}
+#partners table{min-width:780px}
+.tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.03em;white-space:nowrap;color:var(--ink-2)}
+.tag.eng{color:var(--ink)}
+.tag.eng::before{content:"";display:inline-block;width:7px;height:7px;background:var(--accent);margin-right:6px;vertical-align:1px}
+.tag.sp::before{content:"";display:inline-block;width:7px;height:7px;border:1px solid var(--ink-3);margin-right:6px;vertical-align:1px}
+td .src{font-size:13px;color:var(--ink-3);margin-top:4px}
+.events{display:grid;gap:0;border-top:1px solid var(--rule)}
+.ev{display:grid;grid-template-columns:170px 1fr;gap:6px 24px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.ev .when{font-family:var(--f-mono);font-size:13px;color:var(--ink-3)}
+.ev p{font-size:15px}
+.ev .res{color:var(--ink-2);font-size:14px;margin-top:4px}
+@media (max-width:640px){.ev{grid-template-columns:1fr}}
+.why{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 40px}
+.why div{display:grid;gap:6px;align-content:start}
+.why p{color:var(--ink-2);font-size:15px}
+@media (max-width:640px){.why{grid-template-columns:1fr}}
+.method{font-size:14px;color:var(--ink-2)}
+.method ol{margin:0;padding-left:20px;display:grid;gap:8px;max-width:76ch}
+.method li::marker{font-family:var(--f-mono);color:var(--ink-3)}
+.srcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px 32px;font-size:13px}
+.srcs h3{font-family:var(--f-body);font-size:13px;font-weight:600;margin-bottom:4px;color:var(--ink)}
+.srcs ul{list-style:none;margin:0;padding:0;display:grid;gap:3px;color:var(--ink-2)}
+footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--ink);font-size:13px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="kicker">Formula 1 · 2023 to 2026</div>
+  <h1>Do F1 teams get faster when their AI gets smarter?</h1>
+  <p class="dek"><strong>No.</strong> Across 88 race weekends, a team's results after its AI partner ships a new model look just like its results after any random date. Same story when the models got worse.</p>
+  <p class="byline">By Richard Bernard. Data through the 2026 United States Grand Prix.</p>
+</header>
+<div class="facts" id="facts"></div>
+
+<section>
+  <div class="sh"><span class="no">01</span><h2>Pick a team</h2>
+  <p>Every bar is one race weekend: the share of all points scored that weekend that went to this team. Using the share, not raw points, keeps sprint weekends from looking like good weekends. The marks above the chart are the AI partner's model releases.</p></div>
+  <div class="controls">
+    <label class="field"><span>Team</span><select id="team"></select></label>
+    <div class="field"><span>Measure</span><div class="tog" id="metric"><button data-v="share" aria-pressed="true">Share of points</button><button data-v="pos" aria-pressed="false">Average finish</button></div></div>
+    <div class="field"><span>Releases</span><div class="tog" id="markers"><button data-v="partner" aria-pressed="true">Partner's</button><button data-v="all" aria-pressed="false">Every lab</button></div></div>
+  </div>
+  <div class="chart" id="chart"><div class="tip" id="tip"></div></div>
+  <div class="legend" id="legend"></div>
+  <div class="readout" id="readout"></div>
+  <p class="note" id="tnote"></p>
+</section>
+
+<section id="robust">
+  <div class="sh"><span class="no">02</span><h2>What if teams get new models late?</h2>
+  <p>Big companies don't switch models on launch day. So the test was rerun as if each team got the model 2 weeks, 1 month and 2 months later, plus a version that looks only at the very next race. Grey is where 95% of random dates land. A dot outside the grey would be worth a second look.</p></div>
+  <div class="tbl"><table><thead><tr><th>Team and partner</th><th>Launch day</th><th>2 weeks later</th><th>1 month later</th><th>2 months later</th><th>Next race only</th></tr></thead><tbody id="rbody"></tbody></table></div>
+  <p class="note" id="rnote"></p>
+</section>
+
+<section>
+  <div class="sh"><span class="no">03</span><h2>When the models got worse</h2>
+  <p>Labs rarely admit a model got worse. These are the only times one of these partners' labs said so publicly and gave dates. Three events is far too few to test, so here is simply what happened on track.</p></div>
+  <div class="events" id="events"></div>
+</section>
+
+<section>
+  <div class="sh"><span class="no">04</span><h2>All eleven teams</h2>
+  <p>Each row compares the 3 races after a release with the 3 races before, scaled so the grey band is the range random dates produce for that team. If AI releases helped, the dots would lean right, outside the band, for most teams.</p></div>
+  <div class="chart" id="grid"></div>
+  <div class="legend" id="glegend"></div>
+</section>
+
+<section id="partners">
+  <div class="sh"><span class="no">05</span><h2>Who works with whom</h2>
+  <p>From each team's or partner's own announcement where one exists. "Engineering use" means they say the AI is used in car development, simulation or race strategy. None name a model version.</p></div>
+  <div class="tbl"><table><thead><tr><th>Team</th><th>AI partner</th><th>Since</th><th>What they say it does</th><th>Type</th></tr></thead><tbody id="pbody"></tbody></table></div>
+</section>
+
+<section>
+  <div class="sh"><span class="no">06</span><h2>Why there's no link</h2></div>
+  <div class="why">
+    <div><h3>The model isn't on the car</h3><p>Teams use AI for analysis, simulation set-up, software and paperwork. A release on Tuesday doesn't change the parts on the car on Sunday. Those were designed, made and signed off weeks earlier.</p></div>
+    <div><h3>The deals are new</h3><p>Five of the six engineering deals started in 2025 or 2026. Most teams have seen a handful of releases since, which is too few to see anything but a very large effect.</p></div>
+    <div><h3>Bigger forces win</h3><p>Upgrade packages, the 2026 rules reset, the track, weather, crashes and driver form move results far more than a software tool could in a week.</p></div>
+    <div><h3>Small samples fool you</h3><p>An early version of this test flagged Williams as worse after Claude releases. One window straddled the winter break and compared the 2025 car with the 2026 car. Kept inside one season, it vanished. Every window here now stays inside one season.</p></div>
+  </div>
+</section>
+
+<section class="method">
+  <div class="sh"><span class="no">07</span><h2>Method and sources</h2></div>
+  <ol id="method"></ol>
+  <div class="srcs" id="srcs"></div>
+</section>
+
+<footer><span>Built by Richard Bernard with Claude. Data and code are open.</span><span id="updated"></span></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const DATA = __DATA__;
+const REPO = "__REPO__";
+const TEAMS = [
+ {id:"mclaren",name:"McLaren",c:"#f07a00",partner:"Google (Gemini)",since:"Oct 2025",fam:"gemini",label:"eng",
+  does:"Gemini built into the team's workflow. Staff query race-weekend data in plain language; there is a rules lookup tool.",
+  src:[["McLaren, Nov 2025","https://www.mclaren.com/racing/formula-1/2025/mclaren-racing-announces-partnership-extension-with-google/"]]},
+ {id:"mercedes",name:"Mercedes",c:"#00a19c",partner:"Microsoft (Azure AI)",since:"Jan 2026",fam:"openai",label:"eng",
+  does:"Azure cloud and AI for simulation, performance analysis and race strategy modelling. GitHub for engineering software.",
+  src:[["Microsoft, Jan 2026","https://news.microsoft.com/source/2026/01/22/microsoft-and-mercedes-amg-petronas-f1-team-unite-to-drive-innovation-from-factory-to-circuit/"]]},
+ {id:"red-bull",name:"Red Bull",c:"#3a63c9",partner:"Oracle (OCI)",since:"2022, renewed Feb 2026",fam:null,label:"eng",
+  does:"Race simulations and power unit work run on Oracle Cloud. Building an AI strategy agent to sit with the race engineers.",
+  src:[["Oracle, Feb 2026","https://www.oracle.com/news/announcement/oracle-red-bull-racing-extends-title-partnership-with-oracle-2026-02-26/"]]},
+ {id:"ferrari",name:"Ferrari",c:"#d40023",partner:"IBM (watsonx)",since:"Nov 2024",fam:"granite",label:"sp",
+  does:"AI features in the Ferrari fan app and data analytics. No car engineering use is described.",
+  src:[["IBM, Nov 2024","https://newsroom.ibm.com/2024-11-07-ibm-selected-as-official-fan-engagement-and-data-analytics-partner-for-scuderia-ferrari-hp"]]},
+ {id:"williams",name:"Williams",c:"#1a7fd6",partner:"Anthropic (Claude), Atlassian",since:"Feb 2026",fam:"claude",label:"eng",
+  does:"Claude named official thinking partner for race strategy, car development and operations. Atlassian's Rovo tracks garage tasks and simulation runs.",
+  src:[["Williams, Feb 2026","https://www.williamsf1.com/articles/0f1eece4-e632-49c9-a767-148159bbbf87/anthropic-atlassian-williams-f1-team-multi-year-partnership-claude-official-thinking-partner"]]},
+ {id:"aston-martin",name:"Aston Martin",c:"#1f8a66",partner:"Cohere, Cognition",since:"Mar 2026",fam:"cohere",label:"eng",
+  does:"Cohere is the generative AI partner for performance, engineering and operations, with its North platform for all staff. Cognition handles software work.",
+  src:[["Cohere, Mar 2026","https://cohere.com/blog/cohere-aston-martin-formula-one-generative-ai-partner"]]},
+ {id:"racing-bulls",name:"Racing Bulls",c:"#6c8cff",partner:"Neural Concept",since:"Jun 2025",fam:null,label:"eng",
+  does:"Engineering AI that predicts aerodynamic results fast, so designers can test thousands of shape variants.",
+  src:[["Neural Concept via Business Wire, Jun 2025","https://www.businesswire.com/news/home/20250603836415/zh-CN"]]},
+ {id:"alpine",name:"Alpine",c:"#e0559a",partner:"Indra Group",since:"Jan 2026",fam:null,label:"sp",
+  does:"Partner says its AI will process race data. The team gives no detail on engineering use.",
+  src:[["Indra Group","https://www.indragroup.com/en/news/indra-group-makes-an-impact-at-mobile-world-congress-with-bwt-alpine-formula-onetm-team-car-and-its-sovereign-ai-proposal-for-highly-complex-competitive-environments"]]},
+ {id:"haas",name:"Haas",c:"#8d9196",partner:"Mphasis",since:"Nov 2024",fam:null,label:"sp",
+  does:"IT and analytics partner: live data review, forecasting models and garage computer vision. Not a model maker.",
+  src:[["Haas, Nov 2024","https://haasf1team.com/news/moneygram-haas-f1-team-welcomes-mphasis-partnership"]]},
+ {id:"audi",name:"Audi (Sauber)",c:"#8a8d2e",partner:"ElevenLabs",since:"Jan 2026",fam:null,label:"sp",
+  does:"Voice AI for team communications and fan content. No engineering use is described.",
+  src:[["Audi F1, Jan 2026","https://contenthub.audif1.com/en/releases/elevenlabs-named-official-partner-of-audi-revolut-f1-team-97"]]},
+ {id:"cadillac",name:"Cadillac",c:"#a88a52",partner:"TWG AI",since:"Feb 2026",fam:null,label:"sp",
+  does:"Named exclusive AI partner for day-to-day decisions. No engineering use or model is named.",
+  src:[["Cadillac F1, Feb 2026","https://www.cadillacf1team.com/news/twg-ai-joins-the-cadillac-formula-1-r-team-as-primary-and-exclusive-ai"]]}
+];
+const FAM = {gemini:{n:"Gemini",c:"#2f6fdf"},openai:{n:"OpenAI",c:"#10a37f"},claude:{n:"Claude",c:"#c4673f"},cohere:{n:"Cohere",c:"#7b5cc4"},granite:{n:"IBM Granite",c:"#5a6b7d"}};
+const races = DATA.races.map(r => ({...r, date:new Date(r.d+"T12:00:00Z")}));
+const teamById = Object.fromEntries(TEAMS.map(t=>[t.id,t]));
+const state = {team:"mclaren", metric:"share", markers:"partner"};
+const fmt = d3.utcFormat("%b %-d, %Y"), fmtS = d3.utcFormat("%b %-d");
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const D = s => new Date(s+"T12:00:00Z");
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sgn = (v,dp=1) => { const s=Math.abs(v).toFixed(dp); return (v>0.0001?"+":v<-0.0001?"−":"")+s; };
+const unit = m => m==="share" ? " pts of share" : " places";
+const famReleases = Object.values(DATA.families).reduce((s,f)=>s+f.releases.length,0);
+const M = DATA.metrics;
+const allTests = M.share.ntests + M.pos.ntests;
+const minP = Math.min(M.share.minp, M.pos.minp);
+
+// facts strip
+[[races.length,"race weekends, sprints included"],[11,"teams, six with an engineering AI deal"],[famReleases,"model releases, dated from the labs' own posts"],[allTests,"statistical tests run"],[0,"results that hold up after correcting for that many tests"]]
+.forEach(([n,l])=>{ const d=document.createElement("div"); d.innerHTML='<span class="n"></span><span class="l"></span>'; d.children[0].textContent=n; d.children[1].textContent=l; document.getElementById("facts").appendChild(d); });
+
+// controls
+const sel = document.getElementById("team");
+TEAMS.forEach(t=>{ const o=document.createElement("option"); o.value=t.id; o.textContent = t.name + (t.fam ? " · "+FAM[t.fam].n : ""); sel.appendChild(o); });
+sel.value = state.team; sel.onchange = () => { state.team = sel.value; draw(); };
+function tog(id,key){ const box=document.getElementById(id); box.querySelectorAll("button").forEach(b=>b.onclick=()=>{ state[key]=b.dataset.v; box.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); draw(); drawGrid(); drawRobust(); }); }
+tog("metric","metric"); tog("markers","markers");
+
+// gauge: grey band = 95% of random dates, tick = typical, dot = observed
+function gauge(r, w=220){
+  const h=22, pad=6, mid=r.mu, span=Math.max(Math.abs(r.lo-mid),Math.abs(r.hi-mid),Math.abs(r.d-mid))*1.2||1;
+  const x=v=>pad+(v-(mid-span))/(2*span)*(w-2*pad);
+  const out = r.d<r.lo||r.d>r.hi;
+  return `<svg class="gauge" viewBox="0 0 ${w} ${h}" role="img" aria-label="Observed ${sgn(r.d)}; random range ${sgn(r.lo)} to ${sgn(r.hi)}">
+    <line x1="${pad}" x2="${w-pad}" y1="${h/2}" y2="${h/2}" stroke="var(--rule-2)" stroke-width="1"/>
+    <rect x="${x(r.lo)}" y="${h/2-5}" width="${Math.max(1,x(r.hi)-x(r.lo))}" height="10" fill="var(--null)"/>
+    <line x1="${x(mid)}" x2="${x(mid)}" y1="${h/2-7}" y2="${h/2+7}" stroke="var(--ink-3)" stroke-width="1"/>
+    <circle cx="${x(r.d)}" cy="${h/2}" r="5" fill="${out?"var(--accent)":"var(--ink)"}" stroke="var(--paper)" stroke-width="1.5"/></svg>`;
+}
+
+const tip = document.getElementById("tip");
+function showTip(ev, html, host){ const box=host.getBoundingClientRect(); if(tip.parentNode!==host) host.appendChild(tip); tip.innerHTML=html; tip.style.opacity=1;
+  let x=ev.clientX-box.left+14, y=ev.clientY-box.top+14; const w=tip.offsetWidth, h=tip.offsetHeight;
+  if(x+w>box.width-4) x=ev.clientX-box.left-w-14; if(x<4) x=4; if(y+h>box.height-4) y=Math.max(4,ev.clientY-box.top-h-14); tip.style.left=x+"px"; tip.style.top=y+"px"; }
+const hideTip = () => tip.style.opacity=0;
+
+function markerSet(t){
+  const fams = (state.markers==="all"||!t.fam) ? Object.keys(DATA.families) : [t.fam];
+  const rel=[], set=[];
+  fams.forEach(f=>{ DATA.families[f].releases.forEach(([d,n,u])=>rel.push({f,d:D(d),n})); DATA.families[f].setbacks.forEach(([s,e,n,u])=>set.push({f,s:D(s),e:D(e),n})); });
+  return {rel,set};
+}
+
+function draw(){
+  const t = teamById[state.team], host=document.getElementById("chart");
+  d3.select(host).select("svg").remove();
+  const W = Math.max(300, host.clientWidth), narrow = W<600, H = narrow?320:400;
+  const m = {t:44,r:6,b:28,l:narrow?36:46};
+  const svg = d3.select(host).insert("svg",":first-child").attr("viewBox",`0 0 ${W} ${H}`).attr("role","img").attr("aria-label",`${t.name}, results per race weekend with AI model releases marked`);
+  const share = state.metric==="share";
+  const rs = races.filter(r => (share? r.h : r.q)[t.id] != null);
+  const x = d3.scaleUtc().domain([D("2023-02-24"), D("2026-11-04")]).range([m.l, W-m.r]);
+  const val = r => share ? r.h[t.id] : r.q[t.id];
+  const y = share ? d3.scaleLinear().domain([0, Math.max(10, d3.max(rs,val))]).nice().range([H-m.b, m.t])
+                  : d3.scaleLinear().domain([d3.max(rs,val)>20?22:20, 1]).range([H-m.b, m.t]);
+  [2023,2024,2025,2026].forEach((yr,i)=>{ const a=x(D(yr+"-02-27")), b=x(D(yr+"-12-10"));
+    if(i%2) svg.append("rect").attr("x",a).attr("y",m.t).attr("width",b-a).attr("height",H-m.b-m.t).attr("fill",css("--band"));
+    svg.append("text").attr("x",a+2).attr("y",H-m.b+18).text(yr).attr("fill",css("--ink-3")).attr("font-family",css("--f-mono")).attr("font-size",11); });
+  const ticks = share ? y.ticks(5) : [1,5,10,15,20];
+  ticks.forEach(v=>{ svg.append("line").attr("x1",m.l).attr("x2",W-m.r).attr("y1",y(v)).attr("y2",y(v)).attr("stroke",css("--rule")).attr("stroke-width",v===0&&share?1.2:1);
+    svg.append("text").attr("x",m.l-7).attr("y",y(v)+4).attr("text-anchor","end").text(share? v+"%" : "P"+v).attr("fill",css("--ink-3")).attr("font-size",11).attr("font-family",css("--f-mono")); });
+  const {rel,set} = markerSet(t);
+  set.forEach(e=>{ const a=x(e.s), b=Math.max(x(e.e), a+3);
+    svg.append("rect").attr("x",a).attr("y",m.t).attr("width",b-a).attr("height",H-m.b-m.t).attr("fill",css("--accent")).attr("opacity",.10)
+      .on("mousemove",ev=>showTip(ev,`<b>${esc(e.n)}</b><br><span class="m">${fmtS(e.s)} to ${fmt(e.e)}</span>`,host)).on("mouseleave",hideTip); });
+  const P = DATA.partner[t.id];
+  if (P){ const sx=x(D(P[1])); svg.append("line").attr("x1",sx).attr("x2",sx).attr("y1",m.t-30).attr("y2",H-m.b).attr("stroke",css("--ink")).attr("stroke-width",1.25);
+    const lbl = svg.append("text").attr("y",m.t-34).text("Deal starts").attr("fill",css("--ink")).attr("font-size",12).attr("font-weight",600);
+    if (sx > W-m.r-80) lbl.attr("x",sx-5).attr("text-anchor","end"); else lbl.attr("x",sx+5); }
+  const laneY = m.t-14;
+  rel.forEach(e=>{ const xx=x(e.d); if(xx<m.l||xx>W-m.r) return;
+    svg.append("line").attr("x1",xx).attr("x2",xx).attr("y1",laneY+5).attr("y2",H-m.b).attr("stroke",FAM[e.f].c).attr("stroke-opacity",.28).attr("stroke-width",1);
+    svg.append("path").attr("d",d3.symbol(d3.symbolDiamond,40)()).attr("transform",`translate(${xx},${laneY})`).attr("fill",FAM[e.f].c); });
+  // release hit targets
+  rel.forEach(e=>{ const xx=x(e.d); if(xx<m.l||xx>W-m.r) return;
+    svg.append("rect").attr("x",xx-5).attr("y",laneY-8).attr("width",10).attr("height",16).attr("fill","transparent")
+      .on("mousemove",ev=>showTip(ev,`<b>${esc(e.n)}</b><br><span class="m">${fmt(e.d)} · ${FAM[e.f].n}</span>`,host)).on("mouseleave",hideTip); });
+  const bw = Math.max(2, Math.min(8, (W-m.l-m.r)/(races.length*2)));
+  const g = svg.append("g");
+  const html = r => `<b>${esc(r.gp)} GP${r.s?" + sprint":""}</b><br><span class="m">${fmt(r.date)}</span><br><span class="m">${r.p[t.id]??0} pts · ${(r.h[t.id]??0).toFixed(1)}% of points · avg P${r.q[t.id]}</span>`;
+  rs.forEach(r=>{ const v=val(r), xx=x(r.date);
+    if (share) g.append("rect").attr("x",xx-bw/2).attr("y",y(v)).attr("width",bw).attr("height",Math.max(1,y(0)-y(v))).attr("fill",t.c);
+    else g.append("circle").attr("cx",xx).attr("cy",y(v)).attr("r",3.2).attr("fill",t.c); });
+  d3.groups(rs, r=>r.d.slice(0,4)).forEach(([yr,sr])=>{ const vs=sr.map(val), avg=vs.map((_,i)=>d3.mean(vs.slice(Math.max(0,i-4),i+1)));
+    svg.append("path").attr("d",d3.line().x((_,i)=>x(sr[i].date)).y((_,i)=>y(avg[i])).curve(d3.curveMonotoneX)(sr)).attr("fill","none").attr("stroke",css("--ink")).attr("stroke-width",1.6).attr("pointer-events","none"); });
+  rs.forEach(r=>{ const xx=x(r.date); svg.append("rect").attr("x",xx-4).attr("y",m.t).attr("width",8).attr("height",H-m.b-m.t).attr("fill","transparent")
+    .on("mousemove",ev=>showTip(ev,html(r),host)).on("mouseleave",hideTip); });
+  const lg=document.getElementById("legend"); lg.innerHTML="";
+  const add=(sw,txt)=>{ const s=document.createElement("span"); s.innerHTML=sw; s.append(txt); lg.appendChild(s); };
+  add(`<i class="sw" style="background:${t.c}${share?"":";border-radius:50%"}"></i>`, share?"Share of that weekend's points":"Average finish of both cars");
+  add(`<i class="sw" style="height:2px;background:var(--ink)"></i>`,"5-race average, within each season");
+  [...new Set(rel.map(e=>e.f))].forEach(f=>add(`<i class="sw" style="background:${FAM[f].c};transform:rotate(45deg) scale(.7)"></i>`, FAM[f].n+" release"));
+  if (set.length) add(`<i class="sw" style="background:var(--accent);opacity:.25"></i>`,"Lab says its model got worse");
+  readout(t);
+}
+
+function cell(k, r){
+  const d=document.createElement("div"); d.className="ro";
+  if(!r){ d.innerHTML=`<div class="k"></div><div class="v">Too few races</div>`; d.querySelector(".k").textContent=k; return d; }
+  d.innerHTML=`<div class="k"></div><div class="v">${sgn(r.d)}<span style="font-size:14px;color:var(--ink-3)">${unit(state.metric)}</span></div>${gauge(r)}<div class="s">random dates: ${sgn(r.lo)} to ${sgn(r.hi)} · ${r.n} release${r.n>1?"s":""} · p ${r.p.toFixed(2)}</div>`;
+  d.querySelector(".k").textContent=k; return d;
+}
+function readout(t){
+  const R = M[state.metric].rows.find(r=>r.team===t.id).tests, box=document.getElementById("readout"); box.innerHTML="";
+  const own = t.fam && state.markers==="partner";
+  const cells = own ? [["3 races after vs 3 before, since the deal", R.since_l0],["Next race vs the one before, since the deal", R.since_k1],["3 after vs 3 before, every release since 2023", R.all_l0]]
+                    : [["3 races after vs 3 before, any lab's release", R.any_l0],["Next race vs the one before, any lab", R.any_k1]];
+  cells.forEach(([k,r])=>box.appendChild(cell(k,r)));
+  const better = state.metric==="share" ? "a bigger share of points" : "a better average finish";
+  document.getElementById("tnote").textContent = (t.fam ? (own ? `Marks are ${FAM[t.fam].n} releases. ` : "Marks are every lab's releases. ") : `${t.name}'s partner doesn't publish model versions, so the test uses every lab's releases. `)
+    + `A plus means ${better} after the release. The dot is what happened; the grey bar is where 95% of random dates land for ${t.name}.`
+    + (t.id==="mercedes"? " Microsoft doesn't say which models Mercedes uses; OpenAI's are the flagship models on Azure, so that pairing is my inference." : "")
+    + (t.id==="cadillac"&&state.metric==="share" ? " Cadillac hasn't scored a point yet, so try average finish." : "");
+}
+
+function drawRobust(){
+  const tb=document.getElementById("rbody"); tb.innerHTML="";
+  M[state.metric].rows.filter(r=>teamById[r.team].fam).forEach(row=>{
+    const t=teamById[row.team], tr=document.createElement("tr");
+    const a=document.createElement("td"); a.className="team"; a.style.setProperty("--c",t.c); a.innerHTML="<i></i>"; a.append(t.name);
+    const sub=document.createElement("div"); sub.style.cssText="font-weight:400;font-size:13px;color:var(--ink-3)"; sub.textContent=FAM[t.fam].n+", since "+t.since; a.appendChild(sub); tr.appendChild(a);
+    ["since_l0","since_l14","since_l30","since_l60","since_k1"].forEach(k=>{ const r=row.tests[k], td=document.createElement("td"); td.className="cell";
+      td.innerHTML = r ? `<span class="num">${sgn(r.d)} <span style="color:var(--ink-3)">n${r.n}</span></span>${gauge(r,130)}` : `<span class="num" style="color:var(--ink-3)">n/a</span>`; tr.appendChild(td); });
+    tb.appendChild(tr);
+  });
+  const one = M[state.metric].rows.find(r=>r.team==="aston-martin").tests.since_l0;
+  document.getElementById("rnote").textContent = `Numbers are the average change in ${state.metric==="share"?"share of points (percentage points)":"finishing place"}; n is how many releases fell in a usable window. Aston Martin has had ${one?one.n:0} Cohere release since its deal, so its row says almost nothing.`;
+}
+
+function drawEvents(){
+  const box=document.getElementById("events");
+  const rows=[];
+  Object.entries(DATA.families).forEach(([f,F])=>F.setbacks.forEach(([s,e,n,u])=>rows.push({f,s,e,n,u})));
+  rows.sort((a,b)=>a.s<b.s?-1:1);
+  rows.forEach(ev=>{
+    const team = TEAMS.find(t=>t.fam===ev.f), P=DATA.partner[team.id];
+    const sb = DATA.setbacks.find(x=>x.start===ev.s);
+    let res;
+    if (!sb) res = `No race fell inside these dates. ${team.name}'s deal with ${team.partner.split(" (")[0]} also hadn't started yet.`;
+    else res = `${team.name} took ${sb.inside.toFixed(1)}% of points in the ${sb.races} races inside the window, against ${sb.rest.toFixed(1)}% in its other ${sb.start.slice(0,4)} races.` + (sb.partnered ? "" : ` The deal with Anthropic hadn't started yet, so this is a coincidence check, nothing more.`)
+      + (ev.s==="2026-03-04" ? " Anthropic says its API, which an enterprise team would use, wasn't affected." : "");
+    const d=document.createElement("div"); d.className="ev";
+    d.innerHTML=`<div class="when">${fmtS(D(ev.s))} to ${fmt(D(ev.e))}<br>${FAM[ev.f].n}</div><div><p></p><p class="res"></p></div>`;
+    const p=d.querySelector("p"); const a=document.createElement("a"); a.href=ev.u; a.target="_blank"; a.rel="noopener"; a.textContent=ev.n; p.appendChild(a);
+    d.querySelector(".res").textContent=res; box.appendChild(d);
+  });
+}
+
+function drawGrid(){
+  const host=document.getElementById("grid"); d3.select(host).select("svg").remove();
+  const rows=M[state.metric].rows, W=Math.max(300,host.clientWidth), narrow=W<560;
+  const rowH=32, m={t:30,r:8,b:30,l:narrow?96:130}, H=m.t+rowH*rows.length+m.b;
+  const svg=d3.select(host).insert("svg",":first-child").attr("viewBox",`0 0 ${W} ${H}`).attr("role","img").attr("aria-label","Change after model releases for every team compared with random dates");
+  const x=d3.scaleLinear().domain([-3.3,3.3]).range([m.l,W-m.r]);
+  const norm=r=>{ if(!r) return null; const half=((r.hi-r.lo)/2)||1; return Math.max(-3.2,Math.min(3.2,(r.d-(r.lo+r.hi)/2)/half*1.96)); };
+  svg.append("rect").attr("x",x(-1.96)).attr("y",m.t-4).attr("width",x(1.96)-x(-1.96)).attr("height",rowH*rows.length+4).attr("fill",css("--null")).attr("opacity",.6);
+  svg.append("line").attr("x1",x(0)).attr("x2",x(0)).attr("y1",m.t-4).attr("y2",m.t+rowH*rows.length).attr("stroke",css("--ink-3"));
+  svg.append("text").attr("x",x(0)).attr("y",m.t-12).attr("text-anchor","middle").text("95% of random dates").attr("fill",css("--ink-3")).attr("font-size",11).attr("font-family",css("--f-mono"));
+  svg.append("text").attr("x",x(-3.2)).attr("y",H-8).text("← worse after").attr("fill",css("--ink-3")).attr("font-size",12);
+  svg.append("text").attr("x",x(3.2)).attr("y",H-8).attr("text-anchor","end").text("better after →").attr("fill",css("--ink-3")).attr("font-size",12);
+  rows.forEach((r,i)=>{ const t=teamById[r.team], cy=m.t+i*rowH+rowH/2;
+    svg.append("text").attr("x",m.l-12).attr("y",cy+4).attr("text-anchor","end").text(t.name).attr("fill",css("--ink")).attr("font-size",13).attr("font-weight",500);
+    svg.append("line").attr("x1",m.l).attr("x2",W-m.r).attr("y1",cy).attr("y2",cy).attr("stroke",css("--rule"));
+    const anyR=r.tests.any_l0, ownR=r.tests.since_l0||r.tests.all_l0;
+    const tt=(lbl,rr)=>`${t.name}, ${lbl}: ${sgn(rr.d)} (random ${sgn(rr.lo)} to ${sgn(rr.hi)}), p ${rr.p.toFixed(2)}`;
+    if(anyR) svg.append("circle").attr("cx",x(norm(anyR))).attr("cy",cy).attr("r",5).attr("fill",css("--paper")).attr("stroke",css("--ink-2")).attr("stroke-width",1.5).append("title").text(tt("any lab",anyR));
+    if(t.fam && ownR) svg.append("circle").attr("cx",x(norm(ownR))).attr("cy",cy).attr("r",6).attr("fill",t.c).attr("stroke",css("--paper")).attr("stroke-width",1.5).append("title").text(tt("own partner, since the deal",ownR));
+  });
+  document.getElementById("glegend").innerHTML=`<span><i class="sw" style="border-radius:50%;border:1.5px solid var(--ink-2)"></i>After any lab's release</span><span><i class="sw" style="border-radius:50%;background:var(--ink)"></i>After the team's own partner's release, since the deal (team colour)</span><span><i class="sw" style="background:var(--null)"></i>Random dates</span>`;
+}
+
+function fillPartners(){
+  const tb=document.getElementById("pbody");
+  TEAMS.forEach(t=>{ const tr=document.createElement("tr"); const td=(c,txt)=>{ const e=document.createElement("td"); if(c) e.className=c; if(txt!=null) e.textContent=txt; tr.appendChild(e); return e; };
+    const a=td("team"); a.style.setProperty("--c",t.c); a.innerHTML="<i></i>"; a.append(t.name);
+    td(null,t.partner); td("mono",t.since);
+    const d=td(null,t.does); const s=document.createElement("div"); s.className="src";
+    t.src.forEach(([l,u],i)=>{ if(i) s.append(" · "); const al=document.createElement("a"); al.href=u; al.target="_blank"; al.rel="noopener"; al.textContent=l; s.append(al); }); d.append(s);
+    const L=td(); const sp=document.createElement("span"); sp.className="tag "+t.label; sp.textContent=t.label==="eng"?"Engineering use":"Sponsor or IT"; L.append(sp);
+    tb.appendChild(tr); });
+}
+
+function fillMethod(){
+  const sh=M.share, items=[
+    `<b>Results.</b> Every Grand Prix and sprint from Bahrain 2023 to the 2026 United States GP, from the open <a href="https://github.com/f1db/f1db" target="_blank" rel="noopener">F1DB</a> dataset. I checked every team's season points total in F1DB against the official <a href="https://www.formula1.com/en/results/2026/team" target="_blank" rel="noopener">formula1.com standings</a> for 2023 to 2026. All 40 matched.`,
+    `<b>Measures.</b> Share of points: the team's race plus sprint points as a percentage of all points scored that weekend. Average finish: the mean classified place of both cars, a retirement counted as last. Sauber and Audi are one line, as are AlphaTauri, RB and Racing Bulls.`,
+    `<b>Releases.</b> ${famReleases} model releases from Google, OpenAI, Anthropic, Cohere and IBM, each dated from the lab's own announcement or API changelog (listed below). "Got worse" events are only ones the lab itself confirmed with dates.`,
+    `<b>Test.</b> For each release, the average of the 3 races after minus the 3 races before, with all 6 races inside one season so a new car never sits on one side. Releases landing between the same two races count once. The result is compared with 20,000 random sets of race gaps for the same team, which gives the grey range and the p-value.`,
+    `<b>Many tests, so corrected.</b> ${allTests} tests in all: each team, partner and any-lab releases, five rollout delays, both measures. By luck alone about ${Math.round(allTests*0.05)} should come in under p 0.05. ${[sh.minp,M.pos.minp].filter(p=>p<0.05).length} did; the smallest was ${minP.toFixed(3)} (McLaren's share of points the race right after a Gemini release, lower). After a Benjamini-Hochberg correction for multiple tests, nothing comes close.`,
+    `<b>Limits.</b> No team says which model version it runs or when it switched, so launch dates stand in for the day a team got access. Most deals are months old. A small real effect could hide under this much noise; a large one would have shown up.`
+  ];
+  const ol=document.getElementById("method"); items.forEach(h=>{ const li=document.createElement("li"); li.innerHTML=h; ol.appendChild(li); });
+  const box=document.getElementById("srcs");
+  Object.entries(DATA.families).forEach(([f,F])=>{ const d=document.createElement("div"); const h=document.createElement("h3"); h.textContent=F.lab+" release dates"; d.appendChild(h);
+    const pp=document.createElement("p"); const seen=new Map(); F.releases.forEach(([dt,n,u])=>{ if(!seen.has(u)) seen.set(u,[]); seen.get(u).push(n); });
+    [...seen].forEach(([u,ns],i)=>{ if(i) pp.append(", "); const a=document.createElement("a"); a.href=u; a.target="_blank"; a.rel="noopener";
+      a.textContent = ns.length>2 ? `${new URL(u).hostname.replace("www.","")} (${ns.length} releases)` : ns.join(" and "); pp.appendChild(a); });
+    pp.style.color="var(--ink-2)"; d.appendChild(pp); box.appendChild(d); });
+  const last = races[races.length-1];
+  document.getElementById("updated").innerHTML = `Last race included: ${esc(last.gp)} GP, ${fmt(last.date)}` + (REPO.startsWith("http") ? ` · <a href="${REPO}" target="_blank" rel="noopener">Source on GitHub</a>` : "");
+}
+
+fillPartners(); drawEvents(); fillMethod(); draw(); drawGrid(); drawRobust();
+let rt; window.addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(()=>{draw(); drawGrid();},120); });
+const redraw=()=>{draw(); drawGrid(); drawRobust();};
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",redraw);
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+</script>

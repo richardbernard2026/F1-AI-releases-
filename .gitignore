@@ -1,0 +1,5 @@
+raw/
+analysis.json
+pagedata.json
+__pycache__/
+.vercel
