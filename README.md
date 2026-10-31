@@ -30,11 +30,23 @@ That's not a knock on AI in F1. It says a model launch isn't a lever you can see
 
 ## What the page shows
 
-| | |
-|---|---|
-| <img src="docs/chart-team.png" alt="Team view: McLaren share of points per race weekend with Gemini releases marked" width="420"> | **Pick a team.** Each bar is one race weekend: the team's share of all points scored. The diamonds are their AI partner's model releases, and the black line is when the deal started. Under the chart, each test is shown as a dot (what happened) on a grey bar (where 95% of random dates land). |
-| <img src="docs/chart-all-teams.png" alt="All eleven teams compared with the range random dates produce" width="420"> | **All eleven teams.** Every team's change after releases, scaled so the grey band is the range random dates produce. If AI releases helped, the dots would lean right and out of the band. They don't. |
-| <img src="docs/chart-rollout.png" alt="Rollout delay table: results at launch day, two weeks, one month and two months later" width="420"> | **What if teams get models late?** Big companies don't switch on launch day, so the test is rerun with 2-week, 1-month and 2-month delays, plus a next-race-only version. |
+### Pick a team
+
+Each bar is one race weekend: the team's share of all points scored. The diamonds are the AI partner's model releases and the black line is when the deal started. Under the chart, each test is a dot (what happened) on a grey bar (where 95% of random dates land).
+
+<img src="docs/chart-team.png" alt="Team view: McLaren share of points per race weekend with Gemini releases marked" width="100%">
+
+### All eleven teams
+
+Every team's change after releases, scaled so the grey band is the range random dates produce. If AI releases helped, the dots would lean right and out of the band. They don't.
+
+<img src="docs/chart-all-teams.png" alt="All eleven teams compared with the range random dates produce" width="100%">
+
+### What if teams get models late?
+
+Big companies don't switch on launch day, so the test is rerun with 2-week, 1-month and 2-month delays, plus a next-race-only version.
+
+<img src="docs/chart-rollout.png" alt="Rollout delay table: results at launch day, two weeks, one month and two months later" width="100%">
 
 The page also covers the three times a lab publicly confirmed its model got worse, who partners with whom (with each team's own announcement), and the full method.
 
