@@ -5,7 +5,7 @@
 <h1 align="center">Do F1 teams get faster when their AI gets smarter?</h1>
 
 <p align="center">
-  <a href="__LIVE__"><b>Open the interactive page →</b></a>
+  <a href="https://f1-ai-releases.vercel.app"><b>Open the interactive page →</b></a>
   <br>
   <sub>88 race weekends · 11 teams · 64 AI model releases · 114 statistical tests</sub>
 </p>
@@ -78,7 +78,7 @@ Needs Python 3 with PyYAML.
 python3 scripts/fetch_f1db.py raw            # download the 88 races from F1DB
 python3 scripts/analyze.py raw analysis.json # run every test
 python3 scripts/pagedata.py analysis.json > pagedata.json
-python3 scripts/build.py src/page.html pagedata.json . __REPO__ __LIVE__
+python3 scripts/build.py src/page.html pagedata.json . https://github.com/richardbernard2026/F1-AI-releases- https://f1-ai-releases.vercel.app
 ```
 
 ## What's in here
